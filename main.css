@@ -4,6 +4,7 @@
   --gray-color: #cccccc;
   --dark-gray-color: #858584;
 }
+
 html {
   box-sizing: border-box;
   font-size: 16px;
@@ -192,7 +193,7 @@ main .greeting-section .left-side .weather-group label {
   color: var(--light-background-color);
   text-transform: capitalize;
   padding: 5px;
-  width: 55px;
+  width: 75px;
   text-align: center;
   cursor: pointer;
 }
