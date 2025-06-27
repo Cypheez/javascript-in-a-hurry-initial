@@ -149,21 +149,11 @@ function tempConversion(temperature){
 
 // Products Section
 
-/* <div class="product-item">
-            <img src="./assets/products/img6.png" alt="AstroFiction">
-            <div class="product-details">
-                <h3 class="product-title">AstroFiction</h3>
-                <p class="product-author">John Doe</p>
-                <p class="price-title">Price</p>
-                <p class="product-price">$ 49.90</p>
-            </div>
-        </div> */
-
-function productsHandler(){
+function populateProducts(productList){
     let productsSection = document.querySelector(".products-area");
+    productsSection.textContent = "";
 
-    // Run a loop through the products and create a HTML element ("product-item") each
-    products.forEach(function(product, index){
+    productList.forEach(function(product, index){
 
         // Create the HTML element for the individual product 
         let productElement = document.createElement("div");
@@ -174,12 +164,71 @@ function productsHandler(){
         productImage.src = product.image;
         productImage.alt = product.title;
 
+        // Create the product details section
+        let productDetails = document.createElement("div");
+        productDetails.classList.add("product-details");
+
+        // Create product title, author, price-title and price
+        let productTitle = document.createElement("h3");
+        productTitle.classList.add("product-title");
+        productTitle.textContent = product.title;
+        
+        let productAuthor = document.createElement("p");
+        productAuthor.classList.add("product-author");
+        productAuthor.textContent = product.author;
+
+        let priceTitle = document.createElement("p");
+        priceTitle.classList.add("price-title");
+        priceTitle.textContent = "Price";
+
+        let productPrice = document.createElement("p");
+        productPrice.classList.add("product-price");
+        productPrice.textContent = product.price > 0 ? product.price.toFixed(2) + "€" : "Free";
+
+        // Append the product details
+        productDetails.append(productTitle);
+        productDetails.append(productAuthor);
+        productDetails.append(priceTitle);
+        productDetails.append(productPrice);
+
+
         // Add all child HTML elements of the product
         productElement.append(productImage);
+        productElement.append(productDetails);
 
         // Add complete individual product for the product section
         productsSection.append(productElement);
     });
+}
+
+function productsHandler(){
+    let freeProducts = products.filter(function(item){
+        return !item.price || item.price <= 0;
+    });
+    let paidProducts = products.filter(function(item){
+        return item.price > 0;
+    });
+
+    // Run a loop through the products and create a HTML element ("product-item") each
+    populateProducts(products);
+
+    document.querySelector(".products-filter label[for=all] span.product-amount").textContent = products.length;
+    document.querySelector(".products-filter label[for=paid] span.product-amount").textContent = paidProducts.length;
+    document.querySelector(".products-filter label[for=free] span.product-amount").textContent = freeProducts.length;
+
+    let productsFilter = document.querySelector(".products-filter");
+    productsFilter.addEventListener("click", function(event){
+        if (event.target.id === "all") populateProducts(products);
+        else if (event.target.id === "paid") populateProducts(paidProducts);
+        else if (event.target.id === "free") populateProducts(freeProducts);
+    });
+}
+
+// Footer Section
+
+function footerHandler(){
+    let currentYear = new Date().getFullYear();
+    document.querySelector("footer").textContent = `© ${currentYear} - All Rights Reserved`;
 }
 
 // Page Load
@@ -189,3 +238,4 @@ greetingHandler();
 clockHandler();
 galleryHandler();
 productsHandler();
+footerHandler();
