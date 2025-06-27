@@ -1,5 +1,8 @@
 // Constants
 
+const weatherAPIKey = "56f2647723844af88b7e89729c4c6f88";
+const weatherAPIURL = `https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API key}&units=metric`
+
 const galleryImages = [
     {
         src: "./assets/gallery/image1.jpg",
@@ -66,6 +69,13 @@ function menuHandler(){
     });
 }
 
+// Temperature Conversion
+
+function tempConversion(temperature){
+    let fahrenheit = (temperature * (9/5)) + 32;
+    return fahrenheit;
+}
+
 // Greeting Section
 
 function greetingHandler(){
@@ -77,24 +87,43 @@ function greetingHandler(){
     else if (currentHour < 24) greetingText = "Good evening";
     else greetingText = "Welcome";
 
-    const weatherCondition = "sunny";
-    const userLocation = "Frankfurt a.M."
-    let temperature = 30;
-
-    let celsiusText = `The weather is ${weatherCondition} in ${userLocation} with it being ${temperature}°C outside.`;
-    let fahrenheitText = `The weather is ${weatherCondition} in ${userLocation} with it being ${tempConversion(temperature).toFixed(1)}°F outside.`;
-
     document.querySelector("#greeting").innerHTML = greetingText;
-    document.querySelector("p#weather").innerHTML = celsiusText;
-
-    document.querySelector(".weather-group").addEventListener("click", function (event){
-        if (event.target.id == "celsius"){
-           document.querySelector("p#weather").innerHTML = celsiusText;
-        } else {
-            document.querySelector("p#weather").innerHTML = fahrenheitText;
-        }
-    })
 }
+
+// Geolocation Section
+
+function weatherHandler(){
+    navigator.geolocation.getCurrentPosition(position => {
+        let latitude = position.coords.latitude;
+        let longitude = position.coords.longitude;
+        let url = weatherAPIURL
+            .replace("{lat}", latitude)
+            .replace("{lon}", longitude)
+            .replace("{API key}", weatherAPIKey);
+        fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            const condition = data.weather[0].description;
+            const location = data.name;
+            const temperature = data.main.temp;
+
+            console.log(condition, location, temperature);
+
+            let celsiusText = `Location: ${location} | Weather: ${condition} | Temperature: ${temperature.toFixed(1)}°C`;
+            let fahrenheitText = `Location: ${location} | Weather: ${condition} | Temperature: ${tempConversion(temperature).toFixed(1)}°F`;
+        
+            document.querySelector("p#weather").innerHTML = celsiusText;
+
+            document.querySelector(".weather-group").addEventListener("click", function (event){
+                if (event.target.id == "celsius"){
+                    document.querySelector("p#weather").innerHTML = celsiusText;
+                } else {
+                    document.querySelector("p#weather").innerHTML = fahrenheitText;
+                }
+            });
+        }).catch((error => document.querySelector("p#weather").innerHTML = "Unable to get the weather information. Please reload the page."));
+    });
+}   
 
 // Clock Section
 
@@ -138,13 +167,6 @@ function galleryHandler(){
 
         thumbnails.appendChild(thumb);
     })
-}
-
-// Temperature Conversion
-
-function tempConversion(temperature){
-    let fahrenheit = (temperature * (9/5)) + 32;
-    return fahrenheit;
 }
 
 // Products Section
@@ -202,12 +224,8 @@ function populateProducts(productList){
 }
 
 function productsHandler(){
-    let freeProducts = products.filter(function(item){
-        return !item.price || item.price <= 0;
-    });
-    let paidProducts = products.filter(function(item){
-        return item.price > 0;
-    });
+    let freeProducts = products.filter(item => !item.price || item.price <= 0);
+    let paidProducts = products.filter(item => item.price > 0);
 
     // Run a loop through the products and create a HTML element ("product-item") each
     populateProducts(products);
@@ -239,3 +257,4 @@ clockHandler();
 galleryHandler();
 productsHandler();
 footerHandler();
+weatherHandler();
